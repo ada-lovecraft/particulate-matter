@@ -44,7 +44,7 @@ var proton;
         //drawCanvas.addEventListener('mousedown', mousedownHandler, false);
         //drawCanvas.addEventListener('mouseup', mouseupHandler, false);
         drawCanvas.addEventListener('mousemove', mousemoveHandler, false);
-        addStats();
+        //addStats();
 
 
         initBehaviours();
@@ -166,8 +166,8 @@ var proton;
       function tick() {
         requestAnimationFrame(tick);
 
-        stats.begin();
+        //stats.begin();
         proton.update();
-        stats.end();
+        //stats.end();
       }
 
