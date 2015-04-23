@@ -136,8 +136,6 @@ var proton;
           },
 
           applyBehaviour : function(particle) {
-
-              debugger;
               if (rootIndex % 2 != 0) {
                // particle.v.clear();
                 particle.Angle += particle.speed;
