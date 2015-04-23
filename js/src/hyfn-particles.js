@@ -62,24 +62,14 @@ var proton;
 
       function loadImage() {
         logoZones = [];
-        var logo = [];
+
         var loader = new PxLoader();
-        logo[0] = loader.addImage('img/hyfn-logo-long.png');
-        //logo[1] = loader.addImage('img/logo2.png');
-        //logo[2] = loader.addImage('img/logo3.png');
+        var logo = loader.addImage('img/hyfn-logo-long.png');
 
         loader.addCompletionListener(function() {
-          for (var i = 0; i < logo.length; i++) {
-            var imagedata = Proton.Util.getImageData(context, logo[i], rect);
+            var imagedata = Proton.Util.getImageData(context, logo, rect);
             logoZones.push(new Proton.ImageZone(imagedata, rect.x, rect.y));
-
-            colors = colorThief.getPalette(logo[i], 10).map(function(color) {
-              return chroma(color).hex();
-            });
-
-            colors = chroma(colorThief.getColor(logo[i])).hex();
-            console.log('colors:', colors);
-          }
+            colors = chroma(colorThief.getColor(logo)).hex();
             createProton(rect);
             tick();
         });
@@ -136,8 +126,6 @@ var proton;
           },
 
           applyBehaviour : function(particle) {
-
-              debugger;
               if (rootIndex % 2 != 0) {
                // particle.v.clear();
                 particle.Angle += particle.speed;
@@ -153,13 +141,11 @@ var proton;
       }
 
       function mousedownHandler(e) {
-        console.log('down');
         mouseObj.isDown = true;
         repulsionBehaviour.reset(mouseObj,5, 10);
       }
 
       function mouseupHandler(e) {
-        console.log('up');
         mouseObj.isDown = false;
         repulsionBehaviour.reset(mouseObj, 0,0);
       }
