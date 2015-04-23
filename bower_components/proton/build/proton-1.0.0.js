@@ -3371,7 +3371,7 @@
 
 	function WebGLRender(proton, element) {
 		WebGLRender._super_.call(this, proton, element);
-		this.gl = this.element.getContext('webgl', {
+		this.gl = this.element.getContext('experimental-webgl', {
 			antialias : true,
 			stencil : false,
 			depth : false

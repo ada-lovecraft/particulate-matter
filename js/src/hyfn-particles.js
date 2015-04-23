@@ -12,6 +12,7 @@ var proton;
       var mouseObj;
       var rootIndex = 1;
       var colors = [];
+      var particleImage = 'img/particle.png';;
 
       var colorThief = new ColorThief();
 
@@ -40,10 +41,10 @@ var proton;
           y: canvas.height / 2
         };
 
-        drawCanvas.addEventListener('mousedown', mousedownHandler, false);
-        drawCanvas.addEventListener('mouseup', mouseupHandler, false);
+        //drawCanvas.addEventListener('mousedown', mousedownHandler, false);
+        //drawCanvas.addEventListener('mouseup', mouseupHandler, false);
         drawCanvas.addEventListener('mousemove', mousemoveHandler, false);
-        //addStats();
+        addStats();
 
 
         initBehaviours();
@@ -63,7 +64,7 @@ var proton;
         logoZones = [];
         var logo = [];
         var loader = new PxLoader();
-        logo[0] = loader.addImage('img/hyfn-logo-small-color.png');
+        logo[0] = loader.addImage('img/hyfn-logo-long.png');
         //logo[1] = loader.addImage('img/logo2.png');
         //logo[2] = loader.addImage('img/logo3.png');
 
@@ -71,43 +72,49 @@ var proton;
           for (var i = 0; i < logo.length; i++) {
             var imagedata = Proton.Util.getImageData(context, logo[i], rect);
             logoZones.push(new Proton.ImageZone(imagedata, rect.x, rect.y));
+
             colors = colorThief.getPalette(logo[i], 10).map(function(color) {
               return chroma(color).hex();
             });
+
+            colors = chroma(colorThief.getColor(logo[i])).hex();
             console.log('colors:', colors);
           }
-          createProton(rect);
-          tick();
+            createProton(rect);
+            tick();
         });
         loader.start();
       }
 
       function initBehaviours() {
-        var imageWidth = 342;
-        var drawScopeWidth = 710;
-        rect = new Proton.Rectangle((canvas.width - imageWidth) / 2, (canvas.height - imageWidth) / 2, imageWidth, imageWidth);
+        var imageWidth = 800;
+        var imageHeight = 306;
+        var drawScopeWidth = 800;
+        rect = new Proton.Rectangle((canvas.width - imageWidth) / 2, (canvas.height - imageHeight) / 2, imageWidth, imageHeight);
         rect2 = new Proton.Rectangle((canvas.width - drawScopeWidth) / 2, 0, drawScopeWidth, canvas.height);
         var rectZone = new Proton.RectZone(rect2.x, rect2.y, rect2.width, rect2.height);
-        crossBehaviour = new Proton.CrossZone(new Proton.RectZone(0,0, drawCanvas.width, drawCanvas.height), 'bound');
-        randomBehaviour = new Proton.RandomDrift(10, 10, 0.05);
-        repulsionBehaviour = new Proton.Repulsion(mouseObj, 0, 0);
+
+        randomBehaviour = new Proton.RandomDrift(3, 3, 0.5);
+        repulsionBehaviour = new Proton.Repulsion(mouseObj, 50, 50);
 
       }
 
       function createProton() {
         proton = new Proton;
         emitter = new Proton.Emitter();
-        emitter.rate = new Proton.Rate(new Proton.Span(10,25), .1);
+        emitter.rate = new Proton.Rate(new Proton.Span(5,15), .1);
         emitter.addInitialize(new Proton.Mass(1));
+        emitter.addInitialize(new Proton.ImageTarget(particleImage, 32, 32));
         emitter.addInitialize(new Proton.P(new Proton.RectZone(0,0, drawCanvas.width, drawCanvas.height)));
-        emitter.addInitialize(new Proton.Life(30));
-        emitter.addInitialize(new Proton.Radius(new Proton.Span(1.0, 3.0)));
-        emitter.addBehaviour(new Proton.Alpha(new Proton.Span(0.25,1.0)));
+        emitter.addInitialize(new Proton.Life(45));
+
+        emitter.addBehaviour(new Proton.Alpha(1.0, .1));
         emitter.addBehaviour(new Proton.Color(colors));
-        emitter.addBehaviour(randomBehaviour);
-        emitter.addBehaviour(crossBehaviour);
-        emitter.addBehaviour(repulsionBehaviour);
+        emitter.addBehaviour(new Proton.Scale(0.25, 1.0));
+        //emitter.addBehaviour(randomBehaviour);
+
         emitter.addBehaviour(customToZoneBehaviour(logoZones));
+        emitter.addBehaviour(repulsionBehaviour);
 
 
         emitter.emit();
@@ -130,17 +137,16 @@ var proton;
 
           applyBehaviour : function(particle) {
 
-            if(!mouseObj.isDown) {
+              debugger;
               if (rootIndex % 2 != 0) {
-                particle.v.clear();
+               // particle.v.clear();
                 particle.Angle += particle.speed;
                 var index = (rootIndex % 6 + 1) / 2 - 1;
                 var x = particle.zones[0].x + particle.R * Math.cos(particle.Angle);
                 var y = particle.zones[0].y + particle.R * Math.sin(particle.Angle);
-                particle.p.x += (x - particle.p.x) * 0.01;
-                particle.p.y += (y - particle.p.y) * 0.01;
+                particle.p.x += (x - particle.p.x) * 0.02;
+                particle.p.y += (y - particle.p.y) * 0.02;
               }
-            }
           }
         }
 
@@ -149,13 +155,13 @@ var proton;
       function mousedownHandler(e) {
         console.log('down');
         mouseObj.isDown = true;
-        //randomBehaviour.reset(mouseObj.x, mouseObj.y, 0 ,100, Proton.easeInOutBack);
+        repulsionBehaviour.reset(mouseObj,5, 10);
       }
 
       function mouseupHandler(e) {
         console.log('up');
         mouseObj.isDown = false;
-        //randomBehaviour.reset(10, 10, 0 ,100, Proton.easeInOutBack);
+        repulsionBehaviour.reset(mouseObj, 0,0);
       }
 
       function mousemoveHandler(e) {
@@ -167,15 +173,15 @@ var proton;
           mouseObj.x = e.offsetX;
           mouseObj.y = e.offsetY;
         }
-        console.log('mouseobj:', mouseObj);
+
       }
 
 
       function tick() {
         requestAnimationFrame(tick);
 
-        //stats.begin();
+        stats.begin();
         proton.update();
-        //stats.end();
+        stats.end();
       }
 
